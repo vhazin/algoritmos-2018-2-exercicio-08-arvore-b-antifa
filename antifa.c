@@ -16,7 +16,6 @@ Node * createNode(int g){
     no->keys = (int *) malloc(sizeof(int)*(g-1));
     no->childs = (Node **) malloc(sizeof(int)*g);
     no->n = 0;
-
     return no;
 
 }
@@ -25,39 +24,44 @@ Node * insert(Node * no, int value,int G){
     Node * newNode = no;
 
     if(no->folha == 1){
-        newNode->keys[newNode->n] = value;
-        printf("%d",no->keys[newNode->n]);
-        newNode->n += 1;
+        no->keys[no->n] = value;
+        printf("%d",no->keys[no->n]);
+        no->n += 1;
     }else{
-        
+        for(int i = 0 ; i < G;i++){
+            if(value<no->keys[i]){
+                newNode = insert(newNode,value, G);
+                break;
+            }
+        }
     }
 
-    if(no->n == G){
+    if(newNode->n == G){
         Node * lNode = createNode(G);
         Node * rNode = createNode(G);
-
-        int middle = ((no->n)/2)+1;
+        
+        int middle = newNode->n/2;
         for(int i = 0; i <middle;i++){
-            lNode->keys[i] = no->keys[i];
+            lNode->keys[i] = newNode->keys[i];
         }
 
         for(int i = 0;i<middle;i++){
-            rNode->keys[i] = no->keys[middle+1];
+            rNode->keys[i] = newNode->keys[middle+1];
         }
         
-        if(no->pai == NULL){
-            newNode->keys = newNode->keys[middle]; 
+        if(newNode->pai == NULL){
+            newNode->keys[0] = newNode->keys[middle]; 
             newNode->childs[0] = lNode;
             lNode->pai = newNode;
-            rNode->pai = newNode;
             newNode->childs[1] = rNode;
+            rNode->pai = newNode;
             newNode->folha = 0;
+            
         }else{
-            no->pai->keys[no->pai->n] = no->keys[middle];
-            no->pai->childs[no->pai->n-1] = lNode;
-            no->pai->childs[no->pai->n] = rNode;
+            newNode->pai->keys[no->pai->n] = newNode->keys[middle];
+            newNode->pai->childs[no->pai->n-1] = lNode;
+            newNode->pai->childs[no->pai->n] = rNode;
         }
-        
         
     }
     return newNode;
@@ -78,6 +82,7 @@ int main(void){
         printf("Digite o elemento para inserir >>");
         scanf("%d",&value);
         masterNode =  insert(masterNode,value,G);
+
         
     }
 
