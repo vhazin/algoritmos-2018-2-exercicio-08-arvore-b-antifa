@@ -5,6 +5,7 @@ typedef struct node {  // estrutura do nó
     int folha;  // flag de verificação se é folha ou não
     int n;   //numero chaves atualmente
     struct node * pai;  // ponteiro para o node pai
+    int fatherOfSplit;
     struct node ** childs;  // ponteiro para os ponteiros de filhos
     int * keys;  //ponteiro para o array de chaves do nó
 }Node;
@@ -23,23 +24,41 @@ Node * createNode(int g){
 Node * insert(Node * no, int value,int G){  // função para inserir que recebe o no a ser inserido, a chave e o grau da arvore
     Node * newNode = no;
     
-    if(no->folha == 1){ // verifica se o no a ser inserido é folha
-        no->keys[no->n] = value;   // se for folha insere a chave
+    if(newNode->folha == 1){ // verifica se o no a ser inserido é folha
+        newNode->keys[newNode->n] = value;   // se for folha insere a chave
         
-        no->n += 1;   // incrementa o numero de chaves atualmente no nó
-    }else{  // se não for um nó folha...
-        if(value>newNode->keys[G-1]){
-            newNode->childs[G] = insert(newNode->childs[G],value, G);
-        }
-        for(int i = 0 ; i < G;i++){
-            if(value<no->keys[i]){
-                newNode->childs[i] = insert(newNode->childs[i],value, G); // recursividade para inserir na folha dentro do nó chave
+        newNode->n += 1;   // incrementa o numero de chaves atualmente no nó
+    }else{ 
+        Node * comingFromRecursion = createNode(G);
+        int posicaoQueEntrou;
+
+        if(value> no->keys[no->n]){
+            posicaoQueEntrou = no->n+1;
+            comingFromRecursion = insert(newNode->childs[posicaoQueEntrou],value, G); 
+            
+        }else{
+            for(int i = 0 ; i < G;i++){
+                if(value<no->keys[i]){
+                    comingFromRecursion = insert(newNode->childs[i],value, G); 
+                    posicaoQueEntrou = i;
+                }
                 break;
             }
         }
         
+        if(comingFromRecursion->fatherOfSplit == 1){
+            printf("Esse pai splitou");
+        }else{
+            printf("Esse pai nao precisou splitar");
+        }
+        
     }
     
+
+    if(newNode->n ==G){
+        newNode = createNode(G);
+        newNode->fatherOfSplit = 1;
+    }
     return newNode;
 }
 
@@ -63,7 +82,12 @@ int main(void){
     
     Node * masterNode = createNode(G); //cria a arvore
     masterNode->pai = NULL;
-    masterNode->folha = 1;
+    masterNode->folha = 0;
+    masterNode->keys[0] = 10;
+
+    Node * child = createNode(G);
+    child->folha = 1;
+    masterNode->childs[0] = child;
     
     while(1){
         int value;
