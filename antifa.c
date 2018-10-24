@@ -21,6 +21,29 @@ Node * createNode(int g){
     
 }
 
+
+Node * splitNode(Node * origin,int G){
+    
+    int childsSize = floor(G/2);
+    int middle = childsSize+1;
+
+    Node * left = createNode(childsSize);
+    Node * right = createNode(childsSize);
+
+    for(int i = 0;i<childsSize;i++){
+        left->keys[i] = origin->keys[i];
+        left->childs[i] = origin->childs[i];
+
+        right->keys[i+1] = origin->keys[childsSize+i];
+    }
+
+    Node * parent = createNode(G);
+    parent->keys[middle] = origin->keys[middle];
+    parent->childs[0] = left;
+    parent->childs[1] = right;
+
+    return parent;
+}
 Node * insert(Node * no, int value,int G){  // função para inserir que recebe o no a ser inserido, a chave e o grau da arvore
     Node * newNode = no;
     
@@ -29,10 +52,11 @@ Node * insert(Node * no, int value,int G){  // função para inserir que recebe 
         
         newNode->n += 1;   // incrementa o numero de chaves atualmente no nó
     }else{ 
-        Node * comingFromRecursion = createNode(G);
+        Node * comingFromRecursion;
         int posicaoQueEntrou;
 
         if(value> no->keys[no->n]){
+            
             posicaoQueEntrou = no->n+1;
             comingFromRecursion = insert(newNode->childs[posicaoQueEntrou],value, G); 
             
@@ -47,17 +71,20 @@ Node * insert(Node * no, int value,int G){  // função para inserir que recebe 
         }
         
         if(comingFromRecursion->fatherOfSplit == 1){
-            printf("Esse pai splitou");
+            //TODO Insere no Nó
+            
         }else{
-            printf("Esse pai nao precisou splitar");
+            no->childs[posicaoQueEntrou] = comingFromRecursion;
         }
         
     }
     
 
     if(newNode->n ==G){
-        newNode = createNode(G);
-        newNode->fatherOfSplit = 1;
+        Node * father = createNode(2);
+        father = splitNode(newNode,G);
+        father->fatherOfSplit = 1;
+        return father;
     }
     return newNode;
 }
@@ -79,6 +106,7 @@ int main(void){
     int G;
     printf("Insira o grau>> ");
     scanf("%d",&G);
+    
     
     Node * masterNode = createNode(G); //cria a arvore
     masterNode->pai = NULL;
